@@ -1,0 +1,274 @@
+openapi: 3.0.3
+info:
+  title: Hotel Booking API
+  description: This API represents relation between Hotel and Room entities
+  version: "1.0.0"
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+paths:
+  /hotels:
+    get:
+      summary: Get a list of hotels.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+          description: Page size
+      responses:
+        '200':
+          description: List of hotels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hotel'
+    post:
+      summary: Add new hotel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelCreate'
+      responses:
+        '201':
+          description: Added hotel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+  /hotels/{hotelId}:
+    parameters:
+      - in: path
+        name: hotelId
+        required: true
+        schema:
+          type: string
+        description: Unique hotel id
+    get:
+      summary: Get hotel info
+      responses:
+        '200':
+          description: Hotel info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '404':
+          description: Hotel not found
+    put:
+      summary: Update hotel info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelUpdate'
+      responses:
+        '200':
+          description: Hotel info updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '404':
+          description: Hotel not found
+    delete:
+      summary: Delete hotel
+      responses:
+        '204':
+          description: Hotel deleted
+        '404':
+          description: Hotel not found
+  /hotels/{hotelId}/rooms:
+    parameters:
+      - in: path
+        name: hotelId
+        required: true
+        schema:
+          type: string
+        description: Unique hotel id
+    get:
+      summary: List of hotel rooms
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: Filter by room type
+      responses:
+        '200':
+          description: List of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+    post:
+      summary: Add room to hotel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomCreate'
+      responses:
+        '201':
+          description: Added room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+  /hotels/{hotelId}/rooms/{roomId}:
+    parameters:
+      - in: path
+        name: hotelId
+        required: true
+        schema:
+          type: string
+        description: Unique hotel id
+      - in: path
+        name: roomId
+        required: true
+        schema:
+          type: string
+        description: Unique room id inside of a hotel
+    get:
+      summary: Get room info
+      responses:
+        '200':
+          description: Room info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          description: Room not found
+    put:
+      summary: Update room info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomUpdate'
+      responses:
+        '200':
+          description: Room updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          description: Room not found
+    delete:
+      summary: Delete room
+      responses:
+        '204':
+          description: Room deleted
+        '404':
+          description: Room not found
+components:
+  schemas:
+    Hotel:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123"
+        name:
+          type: string
+          example: "Grand Plaza"
+        address:
+          type: string
+          example: "123 Main St, Kyiv"
+        rating:
+          type: number
+          format: float
+          example: 4.5
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-04-01T12:00:00Z"
+    HotelCreate:
+      type: object
+      required: [name, address]
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        rating:
+          type: number
+          format: float
+    HotelUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        rating:
+          type: number
+          format: float
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "456"
+        hotelId:
+          type: string
+          example: "123"
+        number:
+          type: string
+          example: "101"
+        type:
+          type: string
+          example: "double"
+        price:
+          type: number
+          format: float
+          example: 120.0
+        status:
+          type: string
+          enum: [available, booked]
+          example: available
+    RoomCreate:
+      type: object
+      required: [number, type, price]
+      properties:
+        number:
+          type: string
+        type:
+          type: string
+        price:
+          type: number
+    RoomUpdate:
+      type: object
+      properties:
+        number:
+          type: string
+        type:
+          type: string
+        price:
+          type: number
+        status:
+          type: string
+          enum: [available, booked]
+  responses:
+    NotFound:
+      description: Not found
+    BadRequest:
+      description: Bad request
